@@ -59,8 +59,6 @@ git pull後に
                 -e ROUTER=true \            # ルーターとして起動
                 <tag>/mongodb
 
-プライマリ起動
-
 ### Figでの使用方法
 
 [Figとは？](http://www.fig.sh/ "Fidとは？")  
