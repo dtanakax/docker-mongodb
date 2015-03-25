@@ -1,58 +1,56 @@
 #!/bin/bash
 set -e
 
-function replicasetMode() {
-    mv -f /etc/sv-rs.conf /etc/supervisord.conf
-    sed -i -e "s/REPLICA_SET/$REPLICA_SET/" /etc/supervisord.conf
-    
-    _out=out.txt
-    _iplist=list.txt
-    _jsfname=init.js
+REPLICA_SET=${REPLICA_SET:-""}
+CONFIG_SERVER=${CONFIG_SERVER:-"False"}
+ROUTER=${ROUTER:-"False"}
+CREATE_ADMIN_USER=${CREATE_ADMIN_USER:-"False"}
 
-    IFS=$'\n'
-    _envf=(`env`)
-    for _line in "${_envf[@]}"; do
-        IFS='='
-        set -- $_line
-        if [[ "$2" =~ ^tcp:// ]]; then
-            echo "$2" >> $_out
-        fi
-    done
-    if [ -f $_out ]; then
-        IFS=$'\n'
-        awk '!x[$0]++' $_out >> $_iplist
-        _file=(`cat $_iplist`)
-        _IPSELF=`ip -f inet -o addr show eth0|cut -d\  -f 7 | cut -d/ -f 1`
-        touch $_jsfname
-        echo 'rs.initiate()' >> $_jsfname
-        echo "rs.add('$_IPSELF:27017')" >> $_jsfname
-        for _line in "${_file[@]}"; do
-            _IPSEC=`echo $_line | cut -c7-`
-            echo "rs.add('$_IPSEC')" >> $_jsfname
+DB_ADMINUSER=${DB_ADMINUSER:-admin}
+DB_ADMINPASS=${DB_ADMINPASS:-password}
+
+# Mongo options
+OPTION_AUTH="--keyFile \/etc\/mongodb-keyfile"
+OPTION_COMMON="--noprealloc --smallfiles"
+
+function replicasetMode() {
+
+    if [ "$CREATE_ADMIN_USER" = "True" ]; then
+        mongod --smallfiles --nojournal &
+
+        RET=1
+        while [[ RET -ne 0 ]]; do
+            echo "=> Waiting for confirmation of MongoDB service startup"
+            sleep 5
+            mongo admin --eval "help" >/dev/null 2>&1
+            RET=$?
         done
-        echo 'rs.status()' >> $_jsfname
-        echo 'cfg = rs.conf()' >> $_jsfname
-        echo "cfg.members[0].host = '$_IPSELF:27017'" >> $_jsfname
-        echo 'rs.reconfig(cfg)' >> $_jsfname
-        echo 'rs.status()' >> $_jsfname
+
+        echo "=> Creating an $DB_ADMINUSER user with a $DB_ADMINPASS password in MongoDB"
+        mongo admin --eval "db.createUser({user: '$DB_ADMINUSER', pwd: '$DB_ADMINPASS', roles:[{role:'root',db:'admin'}]});"
+        mongo admin --eval "db.shutdownServer();"
+        echo "=> Done!"
     fi
-    rm -f $_out $_iplist
+
+    mv -f /etc/sv-rs.conf /etc/supervisord.conf
+    local options="--replSet $REPLICA_SET $OPTION_COMMON $OPTION_AUTH"
+    sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
 }
 
 function configServerMode() {
     mv -f /etc/sv-cs.conf /etc/supervisord.conf
+    options="--configsvr --dbpath \/data\/configdb --port 27017 $OPTION_COMMON $OPTION_AUTH"
+    sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
 }
 
 function routerMode() {
-    mv -f /etc/sv-rt.conf /etc/supervisord.conf
-
     # Generate CONFIG_SERVER_ADDRS string
-    _out=out.txt
-    _iplist=list.txt
-    _configaddrs=""
+    local _out=out.txt
+    local _iplist=list.txt
+    local _configaddrs=""
 
     IFS=$'\n'
-    _envf=(`env`)
+    local _envf=(`env`)
     for _line in "${_envf[@]}"; do
         IFS='='
         set -- $_line
@@ -61,6 +59,10 @@ function routerMode() {
             echo $_ip >> $_out
         fi
     done
+
+    IFS=$'\n'
+    local _cfg_addr=(`cat $_out`)
+
     if [ -f $_out ]; then
         IFS=$'\n'
         awk '!x[$0]++' $_out >> $_iplist
@@ -69,28 +71,16 @@ function routerMode() {
     fi
     rm -f $_out $_iplist
 
-    sed -i -e "s/CONFIG_SERVER_ADDRS/$_configaddrs/" /etc/supervisord.conf
-
-    # Generate sharding.js
-    _jsfname=init.js
-    touch $_jsfname
-    IFS=$'\n'
-    _envf=(`env`)
-    for _line in "${_envf[@]}"; do
-        IFS='='
-        set -- $_line
-        if [[ "$1" =~ ^REPL.*_TCP$ ]]; then
-            _rsenv=`echo $1 | grep -o "^REPL[0-9]*"`'_ENV_REPLICA_SET'
-            _ip=`eval echo '$'$_rsenv`'/'`echo $2 | cut -c7-`
-            echo "sh.addShard('$_ip')" >> $_jsfname
-        fi
-    done
-    echo 'sh.status()' >> $_jsfname
+    mv -f /etc/sv-rt.conf /etc/supervisord.conf
+    local options="--configdb $_configaddrs --port 27017 $OPTION_AUTH"
+    sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
 }
 
-REPLICA_SET=${REPLICA_SET:-""}
-CONFIG_SERVER=${CONFIG_SERVER:-"False"}
-ROUTER=${ROUTER:-"False"}
+function normalMode() {
+    mv -f /etc/sv.conf /etc/supervisord.conf
+    local options="$OPTION_COMMON $OPTION_AUTH"
+    sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
+}
 
 if [ "${1:0:1}" = '-' ]; then
     set -- mongod "$@"
@@ -110,7 +100,7 @@ elif [ "$CONFIG_SERVER" = "True" ]; then
 elif [ "$ROUTER" = "True" ]; then
     routerMode
 else
-    mv -f /etc/sv.conf /etc/supervisord.conf
+    normalMode
 fi
 
 # Executing supervisord

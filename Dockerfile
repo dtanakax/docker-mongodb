@@ -18,6 +18,7 @@ RUN apt-get update \
         ca-certificates curl \
         numactl \
         supervisor \
+        pwgen \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-key adv --keyserver pool.sks-keyservers.net --recv-keys 492EAFE8CD016A07919F1D2B9ECBEC467F0CEB10
@@ -41,13 +42,20 @@ RUN mkdir -p /data/db && chown -R mongodb:mongodb /data/db
 COPY start.sh /start.sh
 COPY init_repl.sh /init_repl.sh
 COPY init_shard.sh /init_shard.sh
+COPY init_user.sh /init_user.sh
+COPY auth.sh /auth.sh
 COPY sv.conf /etc/sv.conf
 COPY sv-rs.conf /etc/sv-rs.conf
 COPY sv-rt.conf /etc/sv-rt.conf
 COPY sv-cs.conf /etc/sv-cs.conf
-RUN chmod +x /start.sh
-RUN chmod +x /init_repl.sh
-RUN chmod +x /init_shard.sh
+COPY mongodb-keyfile /etc/mongodb-keyfile
+
+RUN chmod +x /start.sh \
+    && chmod +x /init_repl.sh \
+    && chmod +x /init_shard.sh \
+    && chmod +x /init_user.sh \
+    && chmod +x /auth.sh \
+    && chmod 600 /etc/mongodb-keyfile
 
 VOLUME ["/data/db"]
 
