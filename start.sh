@@ -13,23 +13,26 @@ DB_ADMINPASS=${DB_ADMINPASS:-password}
 OPTION_AUTH="--keyFile \/etc\/mongodb-keyfile"
 OPTION_COMMON="--noprealloc --smallfiles"
 
+function createAdminUser() {
+    mongod --smallfiles --nojournal &
+
+    RET=1
+    while [[ RET -ne 0 ]]; do
+        echo "=> Waiting for confirmation of MongoDB service startup"
+        sleep 5
+        mongo admin --eval "help" >/dev/null 2>&1
+        RET=$?
+    done
+
+    echo "=> Creating an $DB_ADMINUSER user with a $DB_ADMINPASS password in MongoDB"
+    mongo admin --eval "db.createUser({user: '$DB_ADMINUSER', pwd: '$DB_ADMINPASS', roles:[{role:'root',db:'admin'}]});"
+    mongo admin --eval "db.shutdownServer();"
+    echo "=> Done!"
+}
+
 function replicasetMode() {
-
     if [ "$CREATE_ADMIN_USER" = "True" ]; then
-        mongod --smallfiles --nojournal &
-
-        RET=1
-        while [[ RET -ne 0 ]]; do
-            echo "=> Waiting for confirmation of MongoDB service startup"
-            sleep 5
-            mongo admin --eval "help" >/dev/null 2>&1
-            RET=$?
-        done
-
-        echo "=> Creating an $DB_ADMINUSER user with a $DB_ADMINPASS password in MongoDB"
-        mongo admin --eval "db.createUser({user: '$DB_ADMINUSER', pwd: '$DB_ADMINPASS', roles:[{role:'root',db:'admin'}]});"
-        mongo admin --eval "db.shutdownServer();"
-        echo "=> Done!"
+        createAdminUser
     fi
 
     mv -f /etc/sv-rs.conf /etc/supervisord.conf
@@ -77,6 +80,10 @@ function routerMode() {
 }
 
 function normalMode() {
+    if [ "$CREATE_ADMIN_USER" = "True" ]; then
+        createAdminUser
+    fi
+
     mv -f /etc/sv.conf /etc/supervisord.conf
     local options="$OPTION_COMMON $OPTION_AUTH"
     sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
