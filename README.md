@@ -59,6 +59,32 @@ git pull後に
                 -e ROUTER=true \            # ルーターとして起動
                 <tag>/mongodb
 
+#### ユーザー認証機能
+
+デフォルトでは認証機能はオフになっていますが、有効にするには以下の設定を行って下さい。
+
+レプリケーション構成ではプライマリへ環境変数を設定
+
+    $ docker run -d --name <name> \
+                -link <container>:alias \    # レプリケーション先セカンダリコンテナ名 複数指定可能
+                -e REPLICA_SET="rsname" \    # レプリカセット名
+                -e DB_ADMINUSER=admin \         # 管理者名
+                -e DB_ADMINPASS=password \      # 管理者パスワード
+                -e CREATE_ADMIN_USER=true \     # 管理者ユーザーを作成
+                <tag>/mongodb
+
+シャードクラスタ構成ではルーターへ環境変数を設定
+
+    $ docker run -d --name <name> \
+                -link \
+                    <container>:config1 \   # ルーティングするコンフィグサーバーコンテナ名 頭にconfigと付いた連番のalias名を指定すること 複数指定可
+                    <container>:repl1 \     # シャーディングするレプリカセットプライマリコンテナ名 頭にreplと付いた連番のalias名を指定すること 複数指定可
+                -e ROUTER=true \            # ルーターとして起動
+                -e DB_ADMINUSER=admin \         # 管理者名
+                -e DB_ADMINPASS=password \      # 管理者パスワード
+                -e CREATE_ADMIN_USER=true \     # 管理者ユーザーを作成
+                <tag>/mongodb
+
 ### Figでの使用方法
 
 [Figとは？](http://www.fig.sh/ "Fidとは？")  
