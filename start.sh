@@ -5,12 +5,16 @@ REPLICA_SET=${REPLICA_SET:-""}
 CONFIG_SERVER=${CONFIG_SERVER:-"False"}
 ROUTER=${ROUTER:-"False"}
 CREATE_ADMIN_USER=${CREATE_ADMIN_USER:-"False"}
+AUTH=${AUTH:-"True"}
 
 DB_ADMINUSER=${DB_ADMINUSER:-admin}
 DB_ADMINPASS=${DB_ADMINPASS:-password}
 
 # Mongo options
-OPTION_AUTH="--keyFile \/etc\/mongodb-keyfile"
+OPTION_AUTH=""
+if [ "$AUTH" = "True" ]; then
+    OPTION_AUTH="--keyFile \/etc\/mongodb-keyfile"
+fi
 OPTION_COMMON="--noprealloc --smallfiles"
 
 function createAdminUser() {
