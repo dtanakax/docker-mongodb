@@ -75,13 +75,13 @@ git pull後に
 
 ### 環境変数
 
-<code>DB_ADMINUSER</code>管理者名
-<code>DB_ADMINPASS</code>管理者パスワード
-<code>CREATE_ADMIN_USER</code>管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
-<code>AUTH</code>認証機能 true or false
-<code>REPLICA_SET</code>レプリカセット名
-<code>CONFIG_SERVER</code>コンフィグサーバーとして起動  true or false
-<code>ROUTER</code>ルーターとして起動  true or false
+- <code>DB_ADMINUSER</code>管理者名
+- <code>DB_ADMINPASS</code>管理者パスワード
+- <code>CREATE_ADMIN_USER</code>管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
+- <code>AUTH</code>認証機能 true or false
+- <code>REPLICA_SET</code>レプリカセット名
+- <code>CONFIG_SERVER</code>コンフィグサーバーとして起動  true or false
+- <code>ROUTER</code>ルーターとして起動  true or false
 
 ### Figでの使用方法
 
