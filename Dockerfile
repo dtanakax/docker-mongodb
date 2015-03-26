@@ -6,6 +6,15 @@ MAINTAINER Daisuke Tanaka, tanaka@infocorpus.com
 
 ENV DEBIAN_FRONTEND noninteractive
 
+# Environment variables
+ENV DB_ADMINUSER    admin
+ENV DB_ADMINPASS    password
+#ENV REPLICA_SET
+ENV CONFIG_SERVER       False
+ENV ROUTER              False
+ENV CREATE_ADMIN_USER   False
+ENV AUTH                True
+
 # MongoDB version
 ENV MONGO_MAJOR 3.0
 ENV MONGO_VERSION 3.0.1
