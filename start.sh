@@ -83,7 +83,7 @@ function routerMode() {
     sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
 }
 
-function normalMode() {
+function singleMode() {
     if [ "$CREATE_ADMIN_USER" = "True" ]; then
         createAdminUser
     fi
@@ -111,7 +111,7 @@ elif [ "$CONFIG_SERVER" = "True" ]; then
 elif [ "$ROUTER" = "True" ]; then
     routerMode
 else
-    normalMode
+    singleMode
 fi
 
 # Executing supervisord
