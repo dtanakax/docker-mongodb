@@ -65,13 +65,23 @@ git pull後に
                 -e CREATE_ADMIN_USER=true \     # 管理者ユーザーを作成
                 <tag>/mongodb
 
-#### SSL認証鍵によるサーバー相互認証
+### SSL認証鍵によるサーバー相互認証
 
 デフォルトでは認証機能はONになっていますが、無効にするにはルーター、コンフィグサーバー、シャードサーバー全てに以下の設定を行って下さい。
 
     $ docker run -d --name <name> \
                 -e AUTH=false \       # 認証機能OFF
                 <tag>/mongodb
+
+### 環境変数
+
+- <code>DB_ADMINUSER</code>管理者名
+- <code>DB_ADMINPASS</code>管理者パスワード
+- <code>CREATE_ADMIN_USER</code>管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
+- <code>AUTH</code>認証機能 true or false
+- <code>REPLICA_SET</code>レプリカセット名
+- <code>CONFIG_SERVER</code>コンフィグサーバーとして起動  true or false
+- <code>ROUTER</code>ルーターとして起動  true or false
 
 ### Figでの使用方法
 
