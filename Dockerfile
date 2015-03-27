@@ -14,6 +14,8 @@ ENV CONFIG_SERVER       False
 ENV ROUTER              False
 ENV CREATE_ADMIN_USER   False
 ENV AUTH                True
+ENV REPLICATION_DELAY   20
+ENV SHARDING_DELAY      40
 
 # MongoDB version
 ENV MONGO_MAJOR 3.0
@@ -51,7 +53,6 @@ COPY start.sh /start.sh
 COPY init_repl.sh /init_repl.sh
 COPY init_shard.sh /init_shard.sh
 COPY init_user.sh /init_user.sh
-COPY auth.sh /auth.sh
 COPY sv.conf /etc/sv.conf
 COPY sv-rs.conf /etc/sv-rs.conf
 COPY sv-rt.conf /etc/sv-rt.conf
@@ -62,7 +63,6 @@ RUN chmod +x /start.sh \
     && chmod +x /init_repl.sh \
     && chmod +x /init_shard.sh \
     && chmod +x /init_user.sh \
-    && chmod +x /auth.sh \
     && chmod 600 /etc/mongodb-keyfile
 
 VOLUME ["/data/db"]
@@ -70,4 +70,3 @@ VOLUME ["/data/db"]
 EXPOSE 27017
 
 ENTRYPOINT ./start.sh
-#CMD ["/bin/bash", "/start.sh"]

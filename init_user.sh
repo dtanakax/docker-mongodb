@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-FIRSTRUN=/runonce_createuser
+FIRSTRUN=/firstrun_createuser
 if [ -f $FIRSTRUN ]; then
     exit 0
 fi
@@ -13,9 +13,11 @@ fi
 
 sleep $1;
 
-rm -f adduser.js
+jsfile=adduser.js
 
-cat << EOT >> adduser.js
+rm -f $jsfile
+
+cat << EOT >> $jsfile
 db.createUser(
     {
         user: '$DB_ADMINUSER', pwd: '$DB_ADMINPASS',
@@ -26,4 +28,4 @@ db.createUser(
 );
 EOT
 
-mongo admin adduser.js
+mongo admin $jsfile

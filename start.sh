@@ -30,13 +30,14 @@ function replicasetMode() {
         createAdminUser
     fi
 
-    mv -f /etc/sv-rs.conf /etc/supervisord.conf
+    cp -f /etc/sv-rs.conf /etc/supervisord.conf
     local options="--replSet $REPLICA_SET $OPTION_COMMON $OPTION_AUTH"
-    sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
+    sed -i -e "s/__MONGO_OPTIONS/$options/
+               s/__REPLICATION_DELAY/$REPLICATION_DELAY/" /etc/supervisord.conf
 }
 
 function configServerMode() {
-    mv -f /etc/sv-cs.conf /etc/supervisord.conf
+    cp -f /etc/sv-cs.conf /etc/supervisord.conf
     options="--configsvr --dbpath \/data\/configdb --port 27017 $OPTION_COMMON $OPTION_AUTH"
     sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
 }
@@ -69,9 +70,10 @@ function routerMode() {
     fi
     rm -f $_out $_iplist
 
-    mv -f /etc/sv-rt.conf /etc/supervisord.conf
+    cp -f /etc/sv-rt.conf /etc/supervisord.conf
     local options="--configdb $_configaddrs --port 27017 $OPTION_AUTH"
-    sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
+    sed -i -e "s/__MONGO_OPTIONS/$options/
+               s/__SHARDING_DELAY/$SHARDING_DELAY/" /etc/supervisord.conf
 }
 
 function singleMode() {
@@ -79,7 +81,7 @@ function singleMode() {
         createAdminUser
     fi
 
-    mv -f /etc/sv.conf /etc/supervisord.conf
+    cp -f /etc/sv.conf /etc/supervisord.conf
     local options="$OPTION_COMMON $OPTION_AUTH"
     sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
 }
@@ -107,6 +109,10 @@ if [ ! -f $FIRSTRUN ]; then
         singleMode
     fi
     touch $FIRSTRUN
+else
+    if [ "$ROUTER" = "True" ]; then
+        routerMode
+    fi
 fi
 
 # Executing supervisord

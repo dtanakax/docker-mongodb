@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-FIRSTRUN=/runonce_shard
+FIRSTRUN=/firstrun_shard
 if [ -f $FIRSTRUN ]; then
     exit 0
 fi
@@ -33,6 +33,9 @@ for line in "${envf[@]}"; do
 done
 echo 'sh.status()' >> $jsfile
 
+if [ "$CREATE_ADMIN_USER" = "True" ]; then
+    mongo admin --eval "db.auth('$DB_ADMINUSER', '$DB_ADMINPASS');"
+fi
 if [ $flg = true ]; then
     mongo admin -u $DB_ADMINUSER -p $DB_ADMINPASS $jsfile
 fi

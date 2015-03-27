@@ -71,5 +71,8 @@ else
 fi
 rm -f $out $iplist
 
+if [ "$CREATE_ADMIN_USER" = "True" ]; then
+    mongo admin --eval "db.auth('$DB_ADMINUSER', '$DB_ADMINPASS');"
+fi
 # Exec replication script
 mongo admin -u $DB_ADMINUSER -p $DB_ADMINPASS $jsfname

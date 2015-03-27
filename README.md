@@ -82,6 +82,8 @@ git pull後に
 - <code>REPLICA_SET</code>レプリカセット名
 - <code>CONFIG_SERVER</code>コンフィグサーバーとして起動  true or false
 - <code>ROUTER</code>ルーターとして起動  true or false
+- <code>REPLICATION_DELAY</code>自動レプリケーション遅延時間 デフォルト20秒
+- <code>SHARDING_DELAY</code>自動シャーディング遅延時間 デフォルト40秒
 
 ### Figでの使用方法
 
