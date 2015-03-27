@@ -1,11 +1,19 @@
 #!/bin/bash
 set -e
 
+FIRSTRUN=/runonce_createuser
+if [ -f $FIRSTRUN ]; then
+    exit 0
+fi
+touch $FIRSTRUN
+
 if [ "$CREATE_ADMIN_USER" != "True" ]; then
     exit 0
 fi
 
 sleep $1;
+
+rm -f adduser.js
 
 cat << EOT >> adduser.js
 db.createUser(
@@ -19,4 +27,3 @@ db.createUser(
 EOT
 
 mongo admin adduser.js
-rm -f adduser.js

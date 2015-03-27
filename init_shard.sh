@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+FIRSTRUN=/runonce_shard
+if [ -f $FIRSTRUN ]; then
+    exit 0
+fi
+touch $FIRSTRUN
+
 if [ "$ROUTER" != "True" ]; then
     exit 0
 fi
@@ -10,6 +16,8 @@ sleep $1;
 # Generate js for sharding
 flg=false
 jsfile=sharding.js
+rm -f $jsfile
+
 touch $jsfile
 IFS=$'\n'
 envf=(`env`)

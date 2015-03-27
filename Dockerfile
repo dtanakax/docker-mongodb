@@ -26,7 +26,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates curl \
         numactl \
-        supervisor
+        supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-key adv --keyserver pool.sks-keyservers.net --recv-keys 492EAFE8CD016A07919F1D2B9ECBEC467F0CEB10
@@ -69,4 +69,5 @@ VOLUME ["/data/db"]
 
 EXPOSE 27017
 
-CMD ["/bin/bash", "/start.sh"]
+ENTRYPOINT ./start.sh
+#CMD ["/bin/bash", "/start.sh"]

@@ -93,16 +93,20 @@ if $numa true &> /dev/null; then
     set -- $numa "$@"
 fi
 
-chown -R mongodb:mongodb /data/db
+FIRSTRUN=/firstrun_mongo
+if [ ! -f $FIRSTRUN ]; then
+    chown -R mongodb:mongodb /data/db
 
-if [ "$REPLICA_SET" != "" ]; then
-    replicasetMode
-elif [ "$CONFIG_SERVER" = "True" ]; then
-    configServerMode
-elif [ "$ROUTER" = "True" ]; then
-    routerMode
-else
-    singleMode
+    if [ "$REPLICA_SET" != "" ]; then
+        replicasetMode
+    elif [ "$CONFIG_SERVER" = "True" ]; then
+        configServerMode
+    elif [ "$ROUTER" = "True" ]; then
+        routerMode
+    else
+        singleMode
+    fi
+    touch $FIRSTRUN
 fi
 
 # Executing supervisord
