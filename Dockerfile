@@ -69,4 +69,5 @@ VOLUME ["/data/db"]
 
 EXPOSE 27017
 
+# Executing sh
 ENTRYPOINT ./start.sh
