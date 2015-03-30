@@ -7,6 +7,9 @@ if [ "$AUTH" = "True" ]; then
     OPTION_AUTH="--keyFile \/etc\/mongodb-keyfile"
 fi
 OPTION_COMMON="--noprealloc --smallfiles"
+if [ "$JOURNAL" = "False" ]; then
+    OPTION_COMMON="${OPTION_COMMON} --nojournal"
+fi
 
 function createAdminUser() {
     mongod --smallfiles --nojournal &
@@ -26,7 +29,7 @@ function createAdminUser() {
 }
 
 function replicasetMode() {
-    if [ "$CREATE_ADMIN_USER" = "True" ]; then
+    if [ "$CREATE_ADMINUSER" = "True" ]; then
         createAdminUser
     fi
 
@@ -77,7 +80,7 @@ function routerMode() {
 }
 
 function singleMode() {
-    if [ "$CREATE_ADMIN_USER" = "True" ]; then
+    if [ "$CREATE_ADMINUSER" = "True" ]; then
         createAdminUser
     fi
 

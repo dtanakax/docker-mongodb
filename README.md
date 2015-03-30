@@ -32,11 +32,11 @@ git pull後に
 プライマリ起動
 
     $ docker run -d --name <name> \
-                -link <container>:alias \    # レプリケーション先セカンダリコンテナ名 複数指定可能
-                -e REPLICA_SET=rsname \    # レプリカセット名
+                -link <container>:alias \       # レプリケーション先セカンダリコンテナ名 複数指定可能
+                -e REPLICA_SET=rsname \         # レプリカセット名
                 -e DB_ADMINUSER=admin \         # 管理者名
                 -e DB_ADMINPASS=password \      # 管理者パスワード
-                -e CREATE_ADMIN_USER=true \     # 管理者ユーザーを作成
+                -e CREATE_ADMINUSER=true \      # 管理者ユーザーを作成
                 <tag>/mongodb
 
 セカンダリ起動
@@ -67,18 +67,19 @@ git pull後に
 
 ### SSL認証鍵によるサーバー相互認証
 
-デフォルトでは認証機能はONになっていますが、無効にするにはルーター、コンフィグサーバー、シャードサーバー全てに以下の設定を行って下さい。
+デフォルトではSSL認証は無効になっていますが、有効にするにはルーター、コンフィグサーバー、シャードサーバー全てに以下の設定を行って下さい。
 
     $ docker run -d --name <name> \
-                -e AUTH=false \       # 認証機能OFF
+                -e AUTH=true \       # 認証機能有効
                 <tag>/mongodb
 
 ### 環境変数
 
 - <code>DB_ADMINUSER</code>管理者名
 - <code>DB_ADMINPASS</code>管理者パスワード
-- <code>CREATE_ADMIN_USER</code>管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
+- <code>CREATE_ADMINUSER</code>管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
 - <code>AUTH</code>認証機能 true or false
+- <code>JOURNAL</code>ジャーナル機能 true or false
 - <code>REPLICA_SET</code>レプリカセット名
 - <code>CONFIG_SERVER</code>コンフィグサーバーとして起動  true or false
 - <code>ROUTER</code>ルーターとして起動  true or false

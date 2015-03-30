@@ -12,8 +12,9 @@ ENV DB_ADMINPASS    password
 #ENV REPLICA_SET
 ENV CONFIG_SERVER       False
 ENV ROUTER              False
-ENV CREATE_ADMIN_USER   False
-ENV AUTH                True
+ENV CREATE_ADMINUSER    False
+ENV AUTH                False
+ENV JOURNAL             True
 ENV REPLICATION_DELAY   20
 ENV SHARDING_DELAY      40
 
@@ -24,7 +25,7 @@ ENV MONGO_VERSION 3.0.1
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mongodb && useradd -r -g mongodb mongodb
 
-RUN apt-get update \
+RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
         ca-certificates curl \
         numactl \
@@ -36,7 +37,7 @@ RUN apt-key adv --keyserver pool.sks-keyservers.net --recv-keys 492EAFE8CD016A07
 RUN echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/$MONGO_MAJOR main" > /etc/apt/sources.list.d/mongodb-org.list
 
 RUN set -x \
-    && apt-get update \
+    && apt-get -y update \
     && apt-get install -y mongodb-org=$MONGO_VERSION \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/lib/mongodb \
