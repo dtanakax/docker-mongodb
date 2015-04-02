@@ -33,9 +33,13 @@ for line in "${envf[@]}"; do
 done
 echo 'sh.status()' >> $jsfile
 
-if [ "$CREATE_ADMIN_USER" = "True" ]; then
+if [ "$AUTH" = "True" ]; then
     mongo admin --eval "db.auth('$DB_ADMINUSER', '$DB_ADMINPASS');"
 fi
 if [ $flg = true ]; then
-    mongo admin -u $DB_ADMINUSER -p $DB_ADMINPASS $jsfile
+    if [ "$AUTH" = "True" ]; then
+        mongo admin -u $DB_ADMINUSER -p $DB_ADMINPASS $jsfile
+    else
+        mongo admin $jsfile
+    fi
 fi
