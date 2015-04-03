@@ -70,7 +70,9 @@ git pull後に
 デフォルトではSSL認証は無効になっていますが、有効にするにはルーター、コンフィグサーバー、シャードサーバー全てに以下の設定を行って下さい。
 
     $ docker run -d --name <name> \
-                -e AUTH=true \       # 認証機能有効
+                -e AUTH=true \              # 認証機能有効
+                -e DB_ADMINUSER=admin       # 認証する管理者名
+                -e DB_ADMINPASS=password    # 認証する管理者パスワード
                 <tag>/mongodb
 
 ### 環境変数
