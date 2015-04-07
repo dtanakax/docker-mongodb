@@ -4,14 +4,14 @@
 
 ### Base Docker Image
 
-[debian:wheezy](https://registry.hub.docker.com/_/debian/ "debian:wheezy")
+[debian:wheezy](https://registry.hub.docker.com/_/debian/)
 
 ### 説明
 
 MongoDB Dockerコンテナイメージです。
 
-[Dockerとは？](https://docs.docker.com/ "Dockerとは？")  
-[Docker Command Reference](https://docs.docker.com/reference/commandline/cli/ "Docker Command Reference")
+[Dockerとは？](https://docs.docker.com/)  
+[Docker Command Reference](https://docs.docker.com/reference/commandline/cli/)
 
 ### 使用方法
 
@@ -21,11 +21,11 @@ git pull後に
 
 イメージ作成
 
-    $ docker build -t <tag>/mongodb .
+    $ docker build -t tanaka0323/mongodb .
 
 起動
     
-    $ docker run -d --name <name> <tag>/mongodb
+    $ docker run -d --name <name> tanaka0323/mongodb
 
 #### レプリケーション構成
 
@@ -37,13 +37,13 @@ git pull後に
                 -e DB_ADMINUSER=admin \         # 管理者名
                 -e DB_ADMINPASS=password \      # 管理者パスワード
                 -e CREATE_ADMINUSER=true \      # 管理者ユーザーを作成
-                <tag>/mongodb
+                tanaka0323/mongodb
 
 セカンダリ起動
 
     $ docker run -d --name <name> \
                 -e REPLICA_SET="rsname" \    # レプリカセット名
-                <tag>/mongodb
+                tanaka0323/mongodb
 
 #### シャードクラスタ構成
 
@@ -51,7 +51,7 @@ git pull後に
 
     $ docker run -d --name <name> \
                 -e CONFIG_SERVER=true \      # コンフィグサーバーとして起動
-                <tag>/mongodb
+                tanaka0323/mongodb
 
 ルーター起動
 
@@ -63,7 +63,7 @@ git pull後に
                 -e DB_ADMINUSER=admin \         # 管理者名
                 -e DB_ADMINPASS=password \      # 管理者パスワード
                 -e CREATE_ADMIN_USER=true \     # 管理者ユーザーを作成
-                <tag>/mongodb
+                tanaka0323/mongodb
 
 ### SSL認証鍵によるサーバー相互認証
 
@@ -90,9 +90,9 @@ git pull後に
 
 ### Figでの使用方法
 
-[Figとは？](http://www.fig.sh/ "Fidとは？")  
+[Figとは？](http://www.fig.sh/)  
 
-[設定ファイル記述例](https://bitbucket.org/tanaka0323/fig-examples "設定ファイル記述例")
+[設定ファイル記述例](https://bitbucket.org/tanaka0323/fig-examples)
 
 ### License
 
