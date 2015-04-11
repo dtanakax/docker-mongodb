@@ -67,8 +67,8 @@ function routerMode() {
         awk '!x[$0]++' $_out >> $_iplist
         _list=(`cat $_iplist`)
         _configaddrs="$(IFS=,; echo "${_list[*]}")"
+        rm -f $_out $_iplist
     fi
-    rm -f $_out $_iplist
 
     cp -f /etc/sv-rt.conf /etc/supervisord.conf
     local options="--configdb $_configaddrs --port 27017 $OPTION_AUTH"
