@@ -1,19 +1,23 @@
 ![mongodb 3.0.1](https://img.shields.io/badge/mongodb-3.0.1-brightgreen.svg) ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 
-# docker-mongodb
+docker-mongodb
+=====================
 
-### Base Docker Image
+Base Docker Image
+--------------------------
 
 [debian:wheezy](https://registry.hub.docker.com/_/debian/)
 
-### 説明
+説明
+--------------------------
 
 MongoDB Dockerコンテナイメージです。
 
 [Dockerとは？](https://docs.docker.com/)  
 [Docker Command Reference](https://docs.docker.com/reference/commandline/cli/)
 
-### 使用方法
+使用方法
+--------------------------
 
 git pull後に
 
@@ -27,7 +31,8 @@ git pull後に
     
     $ docker run -d --name <name> tanaka0323/mongodb
 
-#### レプリケーション構成
+レプリケーション構成
+--------------------------
 
 プライマリ起動
 
@@ -45,7 +50,8 @@ git pull後に
                 -e REPLICA_SET="rsname" \    # レプリカセット名
                 tanaka0323/mongodb
 
-#### シャードクラスタ構成
+シャードクラスタ構成
+--------------------------
 
 コンフィグサーバー起動
 
@@ -65,7 +71,8 @@ git pull後に
                 -e CREATE_ADMIN_USER=true \     # 管理者ユーザーを作成
                 tanaka0323/mongodb
 
-### SSL認証鍵によるサーバー相互認証
+SSL認証鍵によるサーバー相互認証
+--------------------------
 
 デフォルトではSSL認証は無効になっていますが、有効にするにはルーター、コンフィグサーバー、シャードサーバー全てに以下の設定を行って下さい。
 
@@ -75,26 +82,29 @@ git pull後に
                 -e DB_ADMINPASS=password    # 認証する管理者パスワード
                 <tag>/mongodb
 
-### 環境変数
+環境変数
+--------------------------
 
-- <code>DB_ADMINUSER</code>管理者名
-- <code>DB_ADMINPASS</code>管理者パスワード
-- <code>CREATE_ADMINUSER</code>管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
-- <code>AUTH</code>認証機能 true or false
-- <code>JOURNAL</code>ジャーナル機能 true or false
-- <code>REPLICA_SET</code>レプリカセット名
-- <code>CONFIG_SERVER</code>コンフィグサーバーとして起動  true or false
-- <code>ROUTER</code>ルーターとして起動  true or false
-- <code>REPLICATION_DELAY</code>自動レプリケーション遅延時間 デフォルト20秒
-- <code>SHARDING_DELAY</code>自動シャーディング遅延時間 デフォルト40秒
+- `DB_ADMINUSER` 管理者名
+- `DB_ADMINPASS` 管理者パスワード
+- `CREATE_ADMINUSER` 管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
+- `AUTH` 認証機能 true or false
+- `JOURNAL` ジャーナル機能 true or false
+- `REPLICA_SET` レプリカセット名
+- `CONFIG_SERVER` コンフィグサーバーとして起動  true or false
+- `ROUTER` ルーターとして起動  true or false
+- `REPLICATION_DELAY` 自動レプリケーション遅延時間 デフォルト20秒
+- `SHARDING_DELAY` 自動シャーディング遅延時間 デフォルト40秒
 
-### Docker Composeでの使用方法
+Docker Composeでの使用方法
+--------------------------
 
 [Docker Composeとは](https://docs.docker.com/compose/)  
 
 [設定ファイル記述例](https://bitbucket.org/tanaka0323/compose-examples)
 
-### License
+License
+--------------------------
 
 The MIT License
 Copyright (c) 2015 Daisuke Tanaka
