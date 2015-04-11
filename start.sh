@@ -62,9 +62,6 @@ function routerMode() {
         fi
     done
 
-    IFS=$'\n'
-    local _cfg_addr=(`cat $_out`)
-
     if [ -f $_out ]; then
         IFS=$'\n'
         awk '!x[$0]++' $_out >> $_iplist
