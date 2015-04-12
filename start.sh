@@ -10,6 +10,12 @@ OPTION_COMMON="--noprealloc --smallfiles"
 if [ "$JOURNAL" = "False" ]; then
     OPTION_COMMON="${OPTION_COMMON} --nojournal"
 fi
+if [ "$REST_API" = "True" ]; then
+    OPTION_COMMON="${OPTION_COMMON} --rest"
+fi
+if [ "$HTTP_INTERFACE" = "True" ]; then
+    OPTION_COMMON="${OPTION_COMMON} --httpinterface"
+fi
 
 function createAdminUser() {
     mongod --smallfiles --nojournal &

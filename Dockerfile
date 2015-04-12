@@ -6,21 +6,9 @@ MAINTAINER Daisuke Tanaka, tanaka@infocorpus.com
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# Environment variables
-ENV DB_ADMINUSER    admin
-ENV DB_ADMINPASS    password
-#ENV REPLICA_SET
-ENV CONFIG_SERVER       False
-ENV ROUTER              False
-ENV CREATE_ADMINUSER    False
-ENV AUTH                False
-ENV JOURNAL             True
-ENV REPLICATION_DELAY   20
-ENV SHARDING_DELAY      40
-
 # MongoDB version
 ENV MONGO_MAJOR 3.0
-ENV MONGO_VERSION 3.0.1
+ENV MONGO_VERSION 3.0.2
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mongodb && useradd -r -g mongodb mongodb
@@ -44,6 +32,20 @@ RUN set -x \
     && mv /etc/mongod.conf /etc/mongod.conf.orig
 
 RUN apt-get clean all
+
+# Environment variables
+ENV DB_ADMINUSER    admin
+ENV DB_ADMINPASS    password
+#ENV REPLICA_SET
+ENV CONFIG_SERVER       False
+ENV ROUTER              False
+ENV CREATE_ADMINUSER    False
+ENV AUTH                False
+ENV JOURNAL             True
+ENV REPLICATION_DELAY   20
+ENV SHARDING_DELAY      40
+ENV HTTP_INTERFACE      False
+ENV REST_API            False
 
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/mongodb/mongod.log

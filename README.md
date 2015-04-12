@@ -1,4 +1,4 @@
-![mongodb 3.0.1](https://img.shields.io/badge/mongodb-3.0.1-brightgreen.svg) ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![mongodb 3.0.2](https://img.shields.io/badge/mongodb-3.0.2-brightgreen.svg) ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 
 docker-mongodb
 =====================
@@ -80,7 +80,32 @@ SSL認証鍵によるサーバー相互認証
                 -e AUTH=true \              # 認証機能有効
                 -e DB_ADMINUSER=admin       # 認証する管理者名
                 -e DB_ADMINPASS=password    # 認証する管理者パスワード
-                <tag>/mongodb
+                tanaka0323/mongodb
+
+HTTP Interface
+--------------------------
+
+環境変数`HTTP_INTERFACE`を有効にし、`28017`ポートを公開することでブラウザでmongoDBのステータス情報を確認することができます。  
+以下の設定で有効になります。
+
+    $ docker run -d --name <name> \
+                --expose 28017
+                -e REST_API=true \
+                -e HTTP_INTERFACE=true
+                ...
+                tanaka0323/mongodb
+
+REST API
+--------------------------
+
+環境変数`REST_API`を有効にし、`28017`ポートを公開します。  
+以下の設定で有効になります。
+
+    $ docker run -d --name <name> \
+                --expose 28017
+                -e REST_API=true \
+                ...
+                tanaka0323/mongodb
 
 環境変数
 --------------------------
@@ -90,7 +115,9 @@ SSL認証鍵によるサーバー相互認証
 - `CREATE_ADMINUSER` 管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
 - `AUTH` 認証機能 true or false
 - `JOURNAL` ジャーナル機能 true or false
-- `REPLICA_SET` レプリカセット名
+- `REST_API` ジャーナル機能 true or false
+- `JOURNAL` REST API機能 true or false
+- `HTTP_INTERFACE` HTTP INTERFACE機能 true or false
 - `CONFIG_SERVER` コンフィグサーバーとして起動  true or false
 - `ROUTER` ルーターとして起動  true or false
 - `REPLICATION_DELAY` 自動レプリケーション遅延時間 デフォルト20秒
