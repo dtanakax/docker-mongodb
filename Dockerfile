@@ -50,7 +50,10 @@ ENV REST_API            False
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/mongodb/mongod.log
 
-RUN mkdir -p /data/db && chown -R mongodb:mongodb /data/db
+RUN mkdir -p /data/db && mkdir -p /etc/certs/ && \
+    chown -R mongodb:mongodb /data/db
+
+RUN openssl rand -base64 741 > /etc/certs/mongodb.keyfile
 
 COPY start.sh /start.sh
 COPY init_repl.sh /init_repl.sh
@@ -60,15 +63,15 @@ COPY sv.conf /etc/sv.conf
 COPY sv-rs.conf /etc/sv-rs.conf
 COPY sv-rt.conf /etc/sv-rt.conf
 COPY sv-cs.conf /etc/sv-cs.conf
-COPY mongodb-keyfile /etc/mongodb-keyfile
 
 RUN chmod +x /start.sh \
     && chmod +x /init_repl.sh \
     && chmod +x /init_shard.sh \
     && chmod +x /init_user.sh \
-    && chmod 600 /etc/mongodb-keyfile
+    && chown -R mongodb:mongodb /etc/certs \
+    && chmod 600 /etc/certs/mongodb.keyfile
 
-VOLUME ["/data/db"]
+VOLUME ["/data/db", "/etc/certs"]
 
 EXPOSE 27017
 

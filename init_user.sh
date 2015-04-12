@@ -7,11 +7,9 @@ if [ -f $FIRSTRUN ]; then
 fi
 touch $FIRSTRUN
 
-if [ "$CREATE_ADMIN_USER" != "True" ]; then
+if [ "$CREATE_ADMINUSER" != "True" ]; then
     exit 0
 fi
-
-sleep $1;
 
 jsfile=adduser.js
 

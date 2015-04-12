@@ -7,6 +7,7 @@ if [ -f $FIRSTRUN ]; then
 fi
 touch $FIRSTRUN
 
+
 if [ "$ROUTER" != "True" ]; then
     exit 0
 fi
@@ -14,32 +15,29 @@ fi
 sleep $1;
 
 # Generate js for sharding
-flg=false
 jsfile=sharding.js
 rm -f $jsfile
 
-touch $jsfile
-IFS=$'\n'
 envf=(`env`)
 for line in "${envf[@]}"; do
     IFS='='
     set -- $line
-    if [[ "$1" =~ ^REPL.*_TCP$ ]]; then
+    if [[ "$1" =~ ^REPL.*_PORT_27017_TCP$ ]]; then
         rsenv=`echo $1 | grep -o "^REPL[0-9]*"`'_ENV_REPLICA_SET'
         ip=`eval echo '$'$rsenv`'/'`echo $2 | cut -c7-`
         echo "sh.addShard('$ip')" >> $jsfile
-        flg=true
     fi
 done
+
 echo 'sh.status()' >> $jsfile
 
 if [ "$AUTH" = "True" ]; then
     mongo admin --eval "db.auth('$DB_ADMINUSER', '$DB_ADMINPASS');"
 fi
-if [ $flg = true ]; then
-    if [ "$AUTH" = "True" ]; then
-        mongo admin -u $DB_ADMINUSER -p $DB_ADMINPASS $jsfile
-    else
-        mongo admin $jsfile
-    fi
+if [ "$AUTH" = "True" ]; then
+    mongo admin -u $DB_ADMINUSER -p $DB_ADMINPASS $jsfile
+else
+    mongo admin $jsfile
 fi
+
+./init_user.sh

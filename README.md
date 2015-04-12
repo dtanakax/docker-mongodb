@@ -71,17 +71,6 @@ git pull後に
                 -e CREATE_ADMIN_USER=true \     # 管理者ユーザーを作成
                 tanaka0323/mongodb
 
-SSL認証鍵によるサーバー相互認証
---------------------------
-
-デフォルトではSSL認証は無効になっていますが、有効にするにはルーター、コンフィグサーバー、シャードサーバー全てに以下の設定を行って下さい。
-
-    $ docker run -d --name <name> \
-                -e AUTH=true \              # 認証機能有効
-                -e DB_ADMINUSER=admin       # 認証する管理者名
-                -e DB_ADMINPASS=password    # 認証する管理者パスワード
-                tanaka0323/mongodb
-
 HTTP Interface
 --------------------------
 
@@ -113,7 +102,6 @@ REST API
 - `DB_ADMINUSER` 管理者名
 - `DB_ADMINPASS` 管理者パスワード
 - `CREATE_ADMINUSER` 管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
-- `AUTH` 認証機能 true or false
 - `JOURNAL` ジャーナル機能 true or false
 - `REST_API` ジャーナル機能 true or false
 - `JOURNAL` REST API機能 true or false

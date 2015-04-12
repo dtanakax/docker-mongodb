@@ -4,17 +4,18 @@ set -e
 # Mongo options
 OPTION_AUTH=""
 if [ "$AUTH" = "True" ]; then
-    OPTION_AUTH="--keyFile \/etc\/mongodb-keyfile"
+    OPTION_AUTH="--keyFile \/etc\/certs\/mongodb.keyfile"
 fi
 OPTION_COMMON="--noprealloc --smallfiles"
 if [ "$JOURNAL" = "False" ]; then
     OPTION_COMMON="${OPTION_COMMON} --nojournal"
 fi
+OPTION_HTTP=""
 if [ "$REST_API" = "True" ]; then
-    OPTION_COMMON="${OPTION_COMMON} --rest"
+    OPTION_HTTP="${OPTION_HTTP} --rest"
 fi
 if [ "$HTTP_INTERFACE" = "True" ]; then
-    OPTION_COMMON="${OPTION_COMMON} --httpinterface"
+    OPTION_HTTP="${OPTION_HTTP} --httpinterface"
 fi
 
 function createAdminUser() {
@@ -40,7 +41,7 @@ function replicasetMode() {
     fi
 
     cp -f /etc/sv-rs.conf /etc/supervisord.conf
-    local options="--replSet $REPLICA_SET $OPTION_COMMON $OPTION_AUTH"
+    local options="--replSet $REPLICA_SET $OPTION_COMMON $OPTION_HTTP $OPTION_AUTH"
     sed -i -e "s/__MONGO_OPTIONS/$options/
                s/__REPLICATION_DELAY/$REPLICATION_DELAY/" /etc/supervisord.conf
 }
@@ -53,31 +54,28 @@ function configServerMode() {
 
 function routerMode() {
     # Generate CONFIG_SERVER_ADDRS string
-    local _out=out.txt
-    local _iplist=list.txt
     local _configaddrs=""
+    local _configs=()
 
-    IFS=$'\n'
-    local _envf=(`env`)
-    for _line in "${_envf[@]}"; do
-        IFS='='
-        set -- $_line
-        if [[ "$1" =~ ^CONFIG.*_TCP$ ]]; then
-            _ip=`echo $2 | cut -c7-`
-            echo $_ip >> $_out
-        fi
-    done
-
-    if [ -f $_out ]; then
-        IFS=$'\n'
-        awk '!x[$0]++' $_out >> $_iplist
-        _list=(`cat $_iplist`)
-        _configaddrs="$(IFS=,; echo "${_list[*]}")"
-        rm -f $_out $_iplist
+    if [[ `env | grep CONFIG.*_PORT_27017_TCP_ADDR` ]]; then
+        _configaddrs="$(env | grep CONFIG.*_PORT_27017_TCP_ADDR | sed 's/CONFIG.*_PORT_27017_TCP_ADDR=//g')"
     fi
 
+    if [ "$_configaddrs" = "" ]; then
+        return 0
+    fi
+
+    IFS=$'\n'
+    _configaddrs=(`echo "$_configaddrs" | awk '!x[$0]++'`)
+
+    for iprs in "${_configaddrs[@]}"; do
+        _configs+=("$iprs:27017")
+    done
+
+    _configs="$(IFS=,; echo "${_configs[*]}")"
+
     cp -f /etc/sv-rt.conf /etc/supervisord.conf
-    local options="--configdb $_configaddrs --port 27017 $OPTION_AUTH"
+    local options="--configdb $_configs --port 27017 $OPTION_HTTP $OPTION_AUTH"
     sed -i -e "s/__MONGO_OPTIONS/$options/
                s/__SHARDING_DELAY/$SHARDING_DELAY/" /etc/supervisord.conf
 }
@@ -88,7 +86,7 @@ function singleMode() {
     fi
 
     cp -f /etc/sv.conf /etc/supervisord.conf
-    local options="$OPTION_COMMON $OPTION_AUTH"
+    local options="$OPTION_COMMON $OPTION_HTTP $OPTION_AUTH"
     sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
 }
 
