@@ -6,7 +6,7 @@ docker-mongodb
 Base Docker Image
 --------------------------
 
-[debian:wheezy](https://registry.hub.docker.com/_/debian/)
+[tanaka0323/debianjp](https://bitbucket.org/tanaka0323/docker-debianjp)
 
 説明
 --------------------------
