@@ -1,5 +1,5 @@
 # Set the base image
-FROM debian:wheezy
+FROM tanaka0323/debianjp:wheezy
 
 # File Author / Maintainer
 MAINTAINER Daisuke Tanaka, tanaka@infocorpus.com
