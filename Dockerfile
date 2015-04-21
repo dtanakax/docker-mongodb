@@ -73,7 +73,8 @@ RUN chmod +x /start.sh \
 
 VOLUME ["/data/db", "/etc/certs"]
 
+ENTRYPOINT ["./start.sh"]
+
 EXPOSE 27017
 
-# Executing sh
-ENTRYPOINT ./start.sh
+CMD ["supervisord", "-n"]

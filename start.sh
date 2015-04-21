@@ -1,123 +1,124 @@
 #!/bin/bash
 set -e
 
-# Mongo options
-OPTION_AUTH=""
-if [ "$AUTH" = "True" ]; then
-    OPTION_AUTH="--keyFile \/etc\/certs\/mongodb.keyfile"
-fi
-OPTION_COMMON="--noprealloc --smallfiles"
-if [ "$JOURNAL" = "False" ]; then
-    OPTION_COMMON="${OPTION_COMMON} --nojournal"
-fi
-OPTION_HTTP=""
-if [ "$REST_API" = "True" ]; then
-    OPTION_HTTP="${OPTION_HTTP} --rest"
-fi
-if [ "$HTTP_INTERFACE" = "True" ]; then
-    OPTION_HTTP="${OPTION_HTTP} --httpinterface"
-fi
-
-function createAdminUser() {
-    mongod --smallfiles --nojournal &
-
-    RET=1
-    while [[ RET -ne 0 ]]; do
-        echo "=> Waiting for confirmation of MongoDB service startup"
-        sleep 5
-        mongo admin --eval "help" >/dev/null 2>&1
-        RET=$?
-    done
-
-    echo "=> Creating an $DB_ADMINUSER user with a $DB_ADMINPASS password in MongoDB"
-    mongo admin --eval "db.createUser({user: '$DB_ADMINUSER', pwd: '$DB_ADMINPASS', roles:[{role:'root',db:'admin'}]});"
-    mongo admin --eval "db.shutdownServer();"
-    echo "=> Done!"
-}
-
-function replicasetMode() {
-    if [ "$CREATE_ADMINUSER" = "True" ]; then
-        createAdminUser
+if [ "$1" = "supervisord" ]; then
+    # Mongo options
+    OPTION_AUTH=""
+    if [ "$AUTH" = "True" ]; then
+        OPTION_AUTH="--keyFile \/etc\/certs\/mongodb.keyfile"
+    fi
+    OPTION_COMMON="--noprealloc --smallfiles"
+    if [ "$JOURNAL" = "False" ]; then
+        OPTION_COMMON="${OPTION_COMMON} --nojournal"
+    fi
+    OPTION_HTTP=""
+    if [ "$REST_API" = "True" ]; then
+        OPTION_HTTP="${OPTION_HTTP} --rest"
+    fi
+    if [ "$HTTP_INTERFACE" = "True" ]; then
+        OPTION_HTTP="${OPTION_HTTP} --httpinterface"
     fi
 
-    cp -f /etc/sv-rs.conf /etc/supervisord.conf
-    local options="--replSet $REPLICA_SET $OPTION_COMMON $OPTION_HTTP $OPTION_AUTH"
-    sed -i -e "s/__MONGO_OPTIONS/$options/
-               s/__REPLICATION_DELAY/$REPLICATION_DELAY/" /etc/supervisord.conf
-}
+    function createAdminUser() {
+        mongod --smallfiles --nojournal &
 
-function configServerMode() {
-    cp -f /etc/sv-cs.conf /etc/supervisord.conf
-    options="--configsvr --dbpath \/data\/configdb --port 27017 $OPTION_COMMON $OPTION_AUTH"
-    sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
-}
+        RET=1
+        while [[ RET -ne 0 ]]; do
+            echo "=> Waiting for confirmation of MongoDB service startup"
+            sleep 5
+            mongo admin --eval "help" >/dev/null 2>&1
+            RET=$?
+        done
 
-function routerMode() {
-    # Generate CONFIG_SERVER_ADDRS string
-    local _configaddrs=""
-    local _configs=()
+        echo "=> Creating an $DB_ADMINUSER user with a $DB_ADMINPASS password in MongoDB"
+        mongo admin --eval "db.createUser({user: '$DB_ADMINUSER', pwd: '$DB_ADMINPASS', roles:[{role:'root',db:'admin'}]});"
+        mongo admin --eval "db.shutdownServer();"
+        echo "=> Done!"
+    }
 
-    if [[ `env | grep CONFIG.*_PORT_27017_TCP_ADDR` ]]; then
-        _configaddrs="$(env | grep CONFIG.*_PORT_27017_TCP_ADDR | sed 's/CONFIG.*_PORT_27017_TCP_ADDR=//g')"
+    function replicasetMode() {
+        if [ "$CREATE_ADMINUSER" = "True" ]; then
+            createAdminUser
+        fi
+
+        cp -f /etc/sv-rs.conf /etc/supervisord.conf
+        local options="--replSet $REPLICA_SET $OPTION_COMMON $OPTION_HTTP $OPTION_AUTH"
+        sed -i -e "s/__MONGO_OPTIONS/$options/
+                   s/__REPLICATION_DELAY/$REPLICATION_DELAY/" /etc/supervisord.conf
+    }
+
+    function configServerMode() {
+        cp -f /etc/sv-cs.conf /etc/supervisord.conf
+        options="--configsvr --dbpath \/data\/configdb --port 27017 $OPTION_COMMON $OPTION_AUTH"
+        sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
+    }
+
+    function routerMode() {
+        # Generate CONFIG_SERVER_ADDRS string
+        local _configaddrs=""
+        local _configs=()
+
+        if [[ `env | grep CONFIG.*_PORT_27017_TCP_ADDR` ]]; then
+            _configaddrs="$(env | grep CONFIG.*_PORT_27017_TCP_ADDR | sed 's/CONFIG.*_PORT_27017_TCP_ADDR=//g')"
+        fi
+
+        if [ "$_configaddrs" = "" ]; then
+            return 0
+        fi
+
+        IFS=$'\n'
+        _configaddrs=(`echo "$_configaddrs" | awk '!x[$0]++'`)
+
+        for iprs in "${_configaddrs[@]}"; do
+            _configs+=("$iprs:27017")
+        done
+
+        _configs="$(IFS=,; echo "${_configs[*]}")"
+
+        cp -f /etc/sv-rt.conf /etc/supervisord.conf
+        local options="--configdb $_configs --port 27017 $OPTION_HTTP $OPTION_AUTH"
+        sed -i -e "s/__MONGO_OPTIONS/$options/
+                   s/__SHARDING_DELAY/$SHARDING_DELAY/" /etc/supervisord.conf
+    }
+
+    function singleMode() {
+        if [ "$CREATE_ADMINUSER" = "True" ]; then
+            createAdminUser
+        fi
+
+        cp -f /etc/sv.conf /etc/supervisord.conf
+        local options="$OPTION_COMMON $OPTION_HTTP $OPTION_AUTH"
+        sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
+    }
+
+    if [ "${1:0:1}" = '-' ]; then
+        set -- mongod "$@"
     fi
 
-    if [ "$_configaddrs" = "" ]; then
-        return 0
+    numa='numactl --interleave=all'
+    if $numa true &> /dev/null; then
+        set -- $numa "$@"
     fi
 
-    IFS=$'\n'
-    _configaddrs=(`echo "$_configaddrs" | awk '!x[$0]++'`)
+    FIRSTRUN=/firstrun_mongo
+    if [ ! -f $FIRSTRUN ]; then
+        chown -R mongodb:mongodb /data/db
 
-    for iprs in "${_configaddrs[@]}"; do
-        _configs+=("$iprs:27017")
-    done
-
-    _configs="$(IFS=,; echo "${_configs[*]}")"
-
-    cp -f /etc/sv-rt.conf /etc/supervisord.conf
-    local options="--configdb $_configs --port 27017 $OPTION_HTTP $OPTION_AUTH"
-    sed -i -e "s/__MONGO_OPTIONS/$options/
-               s/__SHARDING_DELAY/$SHARDING_DELAY/" /etc/supervisord.conf
-}
-
-function singleMode() {
-    if [ "$CREATE_ADMINUSER" = "True" ]; then
-        createAdminUser
-    fi
-
-    cp -f /etc/sv.conf /etc/supervisord.conf
-    local options="$OPTION_COMMON $OPTION_HTTP $OPTION_AUTH"
-    sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
-}
-
-if [ "${1:0:1}" = '-' ]; then
-    set -- mongod "$@"
-fi
-
-numa='numactl --interleave=all'
-if $numa true &> /dev/null; then
-    set -- $numa "$@"
-fi
-
-FIRSTRUN=/firstrun_mongo
-if [ ! -f $FIRSTRUN ]; then
-    chown -R mongodb:mongodb /data/db
-
-    if [ "$REPLICA_SET" != "" ]; then
-        replicasetMode
-    elif [ "$CONFIG_SERVER" = "True" ]; then
-        configServerMode
-    elif [ "$ROUTER" = "True" ]; then
-        routerMode
+        if [ "$REPLICA_SET" != "" ]; then
+            replicasetMode
+        elif [ "$CONFIG_SERVER" = "True" ]; then
+            configServerMode
+        elif [ "$ROUTER" = "True" ]; then
+            routerMode
+        else
+            singleMode
+        fi
+        touch $FIRSTRUN
     else
-        singleMode
-    fi
-    touch $FIRSTRUN
-else
-    if [ "$ROUTER" = "True" ]; then
-        routerMode
+        if [ "$ROUTER" = "True" ]; then
+            routerMode
+        fi
     fi
 fi
 
-# Executing supervisord
-supervisord -n
+exec "$@"
