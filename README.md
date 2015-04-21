@@ -11,7 +11,7 @@ Base Docker Image
 説明
 --------------------------
 
-MongoDB Dockerコンテナイメージです。
+MongoDB Dockerコンテナ作成設定
 
 [Dockerとは？](https://docs.docker.com/)  
 [Docker Command Reference](https://docs.docker.com/reference/commandline/cli/)
