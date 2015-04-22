@@ -3,21 +3,18 @@ set -e
 
 if [ "$1" = "supervisord" ]; then
     # Mongo options
+    if [ "$OPTIONS" = "**None**" ]; then
+        unset OPTIONS
+    fi
+    if [ "$REPLICA_SET" = "**None**" ]; then
+        unset REPLICA_SET
+    fi
+
     OPTION_AUTH=""
     if [ "$AUTH" = "True" ]; then
         OPTION_AUTH="--keyFile \/etc\/certs\/mongodb.keyfile"
     fi
-    OPTION_COMMON="--noprealloc --smallfiles"
-    if [ "$JOURNAL" = "False" ]; then
-        OPTION_COMMON="${OPTION_COMMON} --nojournal"
-    fi
-    OPTION_HTTP=""
-    if [ "$REST_API" = "True" ]; then
-        OPTION_HTTP="${OPTION_HTTP} --rest"
-    fi
-    if [ "$HTTP_INTERFACE" = "True" ]; then
-        OPTION_HTTP="${OPTION_HTTP} --httpinterface"
-    fi
+    OPTION_COMMON="--port 27017 --noprealloc --smallfiles"
 
     function createAdminUser() {
         mongod --smallfiles --nojournal &
@@ -42,14 +39,14 @@ if [ "$1" = "supervisord" ]; then
         fi
 
         cp -f /etc/sv-rs.conf /etc/supervisord.conf
-        local options="--replSet $REPLICA_SET $OPTION_COMMON $OPTION_HTTP $OPTION_AUTH"
+        local options="--replSet $REPLICA_SET $OPTION_COMMON $OPTION_AUTH $OPTIONS"
         sed -i -e "s/__MONGO_OPTIONS/$options/
                    s/__REPLICATION_DELAY/$REPLICATION_DELAY/" /etc/supervisord.conf
     }
 
     function configServerMode() {
         cp -f /etc/sv-cs.conf /etc/supervisord.conf
-        options="--configsvr --dbpath \/data\/configdb --port 27017 $OPTION_COMMON $OPTION_AUTH"
+        options="--configsvr --dbpath \/data\/configdb $OPTION_COMMON $OPTION_AUTH $OPTIONS"
         sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
     }
 
@@ -76,7 +73,7 @@ if [ "$1" = "supervisord" ]; then
         _configs="$(IFS=,; echo "${_configs[*]}")"
 
         cp -f /etc/sv-rt.conf /etc/supervisord.conf
-        local options="--configdb $_configs --port 27017 $OPTION_HTTP $OPTION_AUTH"
+        local options="--configdb $_configs --port 27017 $OPTION_AUTH $OPTIONS"
         sed -i -e "s/__MONGO_OPTIONS/$options/
                    s/__SHARDING_DELAY/$SHARDING_DELAY/" /etc/supervisord.conf
     }
@@ -87,7 +84,7 @@ if [ "$1" = "supervisord" ]; then
         fi
 
         cp -f /etc/sv.conf /etc/supervisord.conf
-        local options="$OPTION_COMMON $OPTION_HTTP $OPTION_AUTH"
+        local options="$OPTION_COMMON $OPTION_AUTH $OPTIONS"
         sed -i -e "s/__MONGO_OPTIONS/$options/" /etc/supervisord.conf
     }
 
@@ -104,7 +101,7 @@ if [ "$1" = "supervisord" ]; then
     if [ ! -f $FIRSTRUN ]; then
         chown -R mongodb:mongodb /data/db
 
-        if [ "$REPLICA_SET" != "" ]; then
+        if [ -n "$REPLICA_SET" ]; then
             replicasetMode
         elif [ "$CONFIG_SERVER" = "True" ]; then
             configServerMode

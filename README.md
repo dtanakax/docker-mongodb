@@ -71,45 +71,17 @@ git pull後に
                 -e CREATE_ADMIN_USER=true \     # 管理者ユーザーを作成
                 tanaka0323/mongodb
 
-HTTP Interface
---------------------------
-
-環境変数`HTTP_INTERFACE`を有効にし、`28017`ポートを公開することでブラウザでmongoDBのステータス情報を確認することができます。  
-以下の設定で有効になります。
-
-    $ docker run -d --name <name> \
-                --expose 28017
-                -e REST_API=true \
-                -e HTTP_INTERFACE=true
-                ...
-                tanaka0323/mongodb
-
-REST API
---------------------------
-
-環境変数`REST_API`を有効にし、`28017`ポートを公開します。  
-以下の設定で有効になります。
-
-    $ docker run -d --name <name> \
-                --expose 28017
-                -e REST_API=true \
-                ...
-                tanaka0323/mongodb
-
 環境変数
 --------------------------
 
 - `DB_ADMINUSER` 管理者名
 - `DB_ADMINPASS` 管理者パスワード
 - `CREATE_ADMINUSER` 管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
-- `JOURNAL` ジャーナル機能 true or false
-- `REST_API` ジャーナル機能 true or false
-- `JOURNAL` REST API機能 true or false
-- `HTTP_INTERFACE` HTTP INTERFACE機能 true or false
 - `CONFIG_SERVER` コンフィグサーバーとして起動  true or false
 - `ROUTER` ルーターとして起動  true or false
-- `REPLICATION_DELAY` 自動レプリケーション遅延時間 デフォルト20秒
-- `SHARDING_DELAY` 自動シャーディング遅延時間 デフォルト40秒
+- `REPLICATION_DELAY` 自動レプリケーション遅延時間 デフォルト30秒
+- `SHARDING_DELAY` 自動シャーディング遅延時間 デフォルト50秒
+- `OPTIONS` MongoDB起動オプション [参考URL](http://docs.mongodb.org/manual/reference/program/mongod/)
 
 Docker Composeでの使用方法
 --------------------------

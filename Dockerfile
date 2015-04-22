@@ -36,16 +36,14 @@ RUN apt-get clean all
 # Environment variables
 ENV DB_ADMINUSER    admin
 ENV DB_ADMINPASS    password
-#ENV REPLICA_SET
+ENV REPLICA_SET         **None**
 ENV CONFIG_SERVER       False
 ENV ROUTER              False
 ENV CREATE_ADMINUSER    False
 ENV AUTH                False
-ENV JOURNAL             True
-ENV REPLICATION_DELAY   20
-ENV SHARDING_DELAY      40
-ENV HTTP_INTERFACE      False
-ENV REST_API            False
+ENV REPLICATION_DELAY   30
+ENV SHARDING_DELAY      50
+ENV OPTIONS             **None**
 
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/mongodb/mongod.log
