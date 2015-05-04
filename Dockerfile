@@ -1,8 +1,8 @@
 # Set the base image
-FROM tanaka0323/debianjp:wheezy
+FROM dtanakax/debianjp:wheezy
 
 # File Author / Maintainer
-MAINTAINER Daisuke Tanaka, tanaka@infocorpus.com
+MAINTAINER Daisuke Tanaka, dtanakax@gmail.com
 
 ENV DEBIAN_FRONTEND noninteractive
 
