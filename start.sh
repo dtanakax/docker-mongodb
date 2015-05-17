@@ -55,8 +55,8 @@ if [ "$1" = "supervisord" ]; then
         local _configaddrs=""
         local _configs=()
 
-        if [[ `env | grep CONFIG.*_PORT_27017_TCP_ADDR` ]]; then
-            _configaddrs="$(env | grep CONFIG.*_PORT_27017_TCP_ADDR | sed 's/CONFIG.*_PORT_27017_TCP_ADDR=//g')"
+        if [[ `env | grep ^CONFIG.*_PORT_27017_TCP_ADDR` ]]; then
+            _configaddrs="$(env | grep ^CONFIG.*_PORT_27017_TCP_ADDR | sed 's/^CONFIG.*_PORT_27017_TCP_ADDR=//g')"
         fi
 
         if [ "$_configaddrs" = "" ]; then

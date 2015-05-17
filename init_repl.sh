@@ -16,8 +16,8 @@ jsfname=init.js
 rm -f $jsfname
 
 replicaset=""
-if [[ `env | grep _PORT_27017_TCP_ADDR` ]]; then
-    replicaset="$(env | grep _PORT_27017_TCP_ADDR | sed 's/.*_PORT_27017_TCP_ADDR=//g')"
+if [[ `env | grep ^DB.*_PORT_27017_TCP_ADDR` ]]; then
+    replicaset="$(env | grep ^DB.*_PORT_27017_TCP_ADDR | sed 's/^DB.*_PORT_27017_TCP_ADDR=//g')"
 fi
 
 if [ "$replicaset" = "" ]; then

@@ -26,7 +26,8 @@ MongoDB Dockerコンテナ作成設定
 プライマリ起動
 
     $ docker run -d --name <name> \
-                -link <container>:alias \       # レプリケーション先セカンダリコンテナ名 複数指定可能
+                -link <container>:db1 \       # レプリケーション先セカンダリコンテナ名 頭にdbと付いた連番のalias名を指定すること 複数指定可
+                -link <container>:db2 \
                 -e REPLICA_SET=rsname \         # レプリカセット名
                 -e DB_ADMINUSER=admin \         # 管理者名
                 -e DB_ADMINPASS=password \      # 管理者パスワード
@@ -68,8 +69,8 @@ MongoDB Dockerコンテナ作成設定
 - `CREATE_ADMINUSER` 管理者ユーザーを作成 基本的にはレプリカセットのプライマリ、ルーターのみに設定します。
 - `CONFIG_SERVER` コンフィグサーバーとして起動  true or false
 - `ROUTER` ルーターとして起動  true or false
-- `REPLICATION_DELAY` 自動レプリケーション遅延時間 デフォルト30秒
-- `SHARDING_DELAY` 自動シャーディング遅延時間 デフォルト50秒
+- `REPLICATION_DELAY` 自動レプリケーション遅延時間 デフォルト40秒
+- `SHARDING_DELAY` 自動シャーディング遅延時間 デフォルト60秒
 - `OPTIONS` MongoDB起動オプション [参考URL](http://docs.mongodb.org/manual/reference/program/mongod/)
 
 License

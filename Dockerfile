@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # MongoDB version
 ENV MONGO_MAJOR 3.0
-ENV MONGO_VERSION 3.0.2
+ENV MONGO_VERSION 3.0.3
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mongodb && useradd -r -g mongodb mongodb
@@ -41,8 +41,8 @@ ENV CONFIG_SERVER       false
 ENV ROUTER              false
 ENV CREATE_ADMINUSER    false
 ENV AUTH                false
-ENV REPLICATION_DELAY   30
-ENV SHARDING_DELAY      50
+ENV REPLICATION_DELAY   40
+ENV SHARDING_DELAY      60
 ENV OPTIONS             **None**
 
 # forward request and error logs to docker log collector
