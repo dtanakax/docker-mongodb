@@ -7,7 +7,7 @@ if [ -f $FIRSTRUN ]; then
 fi
 touch $FIRSTRUN
 
-if [ "$CREATE_ADMINUSER" != "True" ]; then
+if [ "$CREATE_ADMINUSER" != "true" ]; then
     exit 0
 fi
 

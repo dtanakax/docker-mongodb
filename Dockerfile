@@ -37,10 +37,10 @@ RUN apt-get clean all
 ENV DB_ADMINUSER    admin
 ENV DB_ADMINPASS    password
 ENV REPLICA_SET         **None**
-ENV CONFIG_SERVER       False
-ENV ROUTER              False
-ENV CREATE_ADMINUSER    False
-ENV AUTH                False
+ENV CONFIG_SERVER       false
+ENV ROUTER              false
+ENV CREATE_ADMINUSER    false
+ENV AUTH                false
 ENV REPLICATION_DELAY   30
 ENV SHARDING_DELAY      50
 ENV OPTIONS             **None**

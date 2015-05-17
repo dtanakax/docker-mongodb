@@ -61,10 +61,10 @@ else
     echo 'rs.reconfig(cfg, { force: true })' >> $jsfname
 fi
 
-if [ "$AUTH" = "True" ]; then
+if [ "$AUTH" = "true" ]; then
     mongo admin --eval "db.auth('$DB_ADMINUSER', '$DB_ADMINPASS');"
 fi
-if [ "$AUTH" = "True" ]; then
+if [ "$AUTH" = "true" ]; then
     mongo admin -u $DB_ADMINUSER -p $DB_ADMINPASS $jsfname
 else
     mongo admin $jsfname

@@ -8,7 +8,7 @@ fi
 touch $FIRSTRUN
 
 
-if [ "$ROUTER" != "True" ]; then
+if [ "$ROUTER" != "true" ]; then
     exit 0
 fi
 
@@ -31,10 +31,10 @@ done
 
 echo 'sh.status()' >> $jsfile
 
-if [ "$AUTH" = "True" ]; then
+if [ "$AUTH" = "true" ]; then
     mongo admin --eval "db.auth('$DB_ADMINUSER', '$DB_ADMINPASS');"
 fi
-if [ "$AUTH" = "True" ]; then
+if [ "$AUTH" = "true" ]; then
     mongo admin -u $DB_ADMINUSER -p $DB_ADMINPASS $jsfile
 else
     mongo admin $jsfile

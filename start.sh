@@ -11,7 +11,7 @@ if [ "$1" = "supervisord" ]; then
     fi
 
     OPTION_AUTH=""
-    if [ "$AUTH" = "True" ]; then
+    if [ "$AUTH" = "true" ]; then
         OPTION_AUTH="--keyFile \/etc\/certs\/mongodb.keyfile"
     fi
     OPTION_COMMON="--port 27017 --noprealloc --smallfiles"
@@ -34,7 +34,7 @@ if [ "$1" = "supervisord" ]; then
     }
 
     function replicasetMode() {
-        if [ "$CREATE_ADMINUSER" = "True" ]; then
+        if [ "$CREATE_ADMINUSER" = "true" ]; then
             createAdminUser
         fi
 
@@ -79,7 +79,7 @@ if [ "$1" = "supervisord" ]; then
     }
 
     function singleMode() {
-        if [ "$CREATE_ADMINUSER" = "True" ]; then
+        if [ "$CREATE_ADMINUSER" = "true" ]; then
             createAdminUser
         fi
 
@@ -103,16 +103,16 @@ if [ "$1" = "supervisord" ]; then
 
         if [ -n "$REPLICA_SET" ]; then
             replicasetMode
-        elif [ "$CONFIG_SERVER" = "True" ]; then
+        elif [ "$CONFIG_SERVER" = "true" ]; then
             configServerMode
-        elif [ "$ROUTER" = "True" ]; then
+        elif [ "$ROUTER" = "true" ]; then
             routerMode
         else
             singleMode
         fi
         touch $FIRSTRUN
     else
-        if [ "$ROUTER" = "True" ]; then
+        if [ "$ROUTER" = "true" ]; then
             routerMode
         fi
     fi
