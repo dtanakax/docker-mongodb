@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # MongoDB version
 ENV MONGO_MAJOR 3.0
-ENV MONGO_VERSION 3.0.3
+ENV MONGO_VERSION 3.0.4
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mongodb && useradd -r -g mongodb mongodb
